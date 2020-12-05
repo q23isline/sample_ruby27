@@ -1,15 +1,54 @@
+# https://circleci.com/docs/ja/2.0/language-ruby/
+# https://circleci.com/docs/ja/2.0/collect-test-data/ 参照
 version: 2.1
 orbs:
   ruby: circleci/ruby@0.1.2
 
 jobs:
   build:
+    parallelism: 1
     docker:
       - image: circleci/ruby:2.7.2-node-browsers
-    executor: ruby/default
+        environment:
+          BUNDLE_JOBS: 1
+          BUNDLE_RETRY: 1
+          BUNDLE_PATH: vendor/bundle
+          PGHOST: 127.0.0.1
+          PGUSER: circleci-demo-ruby
+          RAILS_ENV: test
     steps:
       - checkout
       - run:
           name: Which bundler?
           command: bundle -v
-      - ruby/bundle-install
+      - restore_cache:
+          keys:
+            - rails-demo-bundle-v2-{{ checksum "Gemfile.lock" }}
+            - rails-demo-bundle-v2-
+      - run:
+          name: Bundle install
+          command: bundle check --path vendor/bundle || bundle install --deployment
+      - save_cache:
+          key: rails-demo-bundle-v2-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+      - restore_cache:
+          keys:
+            - rails-demo-yarn-{{ checksum "yarn.lock" }}
+            - rails-demo-yarn-
+      - run:
+          name: Yarn install
+          command: yarn install --cache-folder ~/.cache/yarn
+      - save_cache:
+          key: rails-demo-yarn-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+      - run:
+          name: database setup
+          command: bin/rails db:schema:load --trace
+      - run:
+          name: Test execute
+          command: bundle exec rake test
+          when: always
+      - store_test_results:
+          path: test/reports
