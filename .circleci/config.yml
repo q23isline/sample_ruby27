@@ -13,8 +13,6 @@ jobs:
           BUNDLE_JOBS: 1
           BUNDLE_RETRY: 1
           BUNDLE_PATH: vendor/bundle
-          PGHOST: 127.0.0.1
-          PGUSER: circleci-demo-ruby
           RAILS_ENV: test
     steps:
       - checkout
