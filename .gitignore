@@ -41,3 +41,4 @@ yarn-debug.log*
 .yarn-integrity
 
 .solargraph.yml
+/test/reports/*
