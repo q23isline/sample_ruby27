@@ -43,10 +43,10 @@ jobs:
             - ~/.cache/yarn
       - run:
           name: database setup
-          command: bin/rails db:schema:load --trace
+          command: bundle exec rails db:migrate
       - run:
           name: Test execute
-          command: bundle exec rake test
+          command: bundle exec rails test
           when: always
       - store_test_results:
           path: test/reports
