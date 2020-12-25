@@ -7,7 +7,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
   test "should get index" do
     get users_url
-    assert_response :error
+    assert_response :sucess
   end
 
   test "should get new" do
